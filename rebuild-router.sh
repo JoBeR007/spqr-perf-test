@@ -4,6 +4,5 @@ rm -rf spqr
 git clone https://github.com/pg-sharding/spqr.git
 cd spqr || exit 1
 make build
-cp ../configs/tpcc.sql examples/
 ./spqr-router --config ../configs/router.yaml run
 cd ..
