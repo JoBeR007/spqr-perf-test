@@ -1,0 +1,1 @@
+java -jar target/benchbase-spqr/benchbase.jar -b tpcc -c config/postgres/sample_tpcc_config2.xml --load=true --execute=true

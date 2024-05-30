@@ -27,3 +27,5 @@ sed -i "s/HOSTPORT2/$escaped_shard2url/g" configs/tpcc_config.xml
 sed -i "s/ROUTERHOSTPORT/$escaped_routerurl/g" configs/tpcc_config.xml
 sed -i "s/user1/${POSTGRES_USER}/g" configs/tpcc_config.xml
 sed -i "s/12345678/${POSTGRES_PASS}/g" configs/tpcc_config.xml
+
+scp configs/tpcc_config.xml "${BENCH_USER}"@"${BENCH_IP}":/home/spqr-perf-test/configs
