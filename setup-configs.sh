@@ -15,7 +15,7 @@ sed -i "s/db1/${POSTGRES_DB}/g" configs/router.yaml
 #SETTING UP BENCH CONFIG
 #modify config
 jdbc="jdbc:postgresql://"
-sslmode="?targetServerType=master&sslmode=disable"
+sslmode="?targetServerType=master&amp;sslmode=disable"
 shard1url="$jdbc${HOSTPORT1},${HOSTPORT2},${HOSTPORT3}/${POSTGRES_DB}$sslmode"
 shard2url="$jdbc${HOSTPORT4},${HOSTPORT5},${HOSTPORT6}/${POSTGRES_DB}$sslmode"
 routerurl="$jdbc${ROUTER_IP}:8432/$POSTGRES_DB$sslmode"
