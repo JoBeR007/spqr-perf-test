@@ -9,8 +9,8 @@ REPO_DIR="spqr"
 LAST_COMMIT_FILE="last_commit.txt"
 
 # Scripts to run
-SCRIPTS=("setup-configs.sh" "restart-router.sh" "restart-bench.sh")
-
+SCRIPTS=("setup-configs.sh" "restart-router.sh")
+REMOTE_SCRIPT="restart-bench.sh"
 # Clone the repository if it does not exist
 if [ ! -d "$REPO_DIR" ]; then
   git clone "$REPO_URL" "$REPO_DIR"
@@ -47,7 +47,9 @@ while true; do
     echo "Starting router"
     bash "${SCRIPTS[1]}" &
 
-    bash "${SCRIPTS[2]}"
+    scp "${REMOTE_SCRIPT}" "${BENCH_USER}"@"${BENCH_IP}":/home/spqr-perf-test/
+    ssh "${BENCH_USER}"@"${BENCH_IP}" "bash /home/spqr-perf-test/\$REMOTE_SCRIPT"
+
     if [ $? -ne 0 ]; then
             echo "Script ${SCRIPTS[0]} failed. Stopping the execution of further scripts."
             exit 1
