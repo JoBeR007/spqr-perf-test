@@ -47,8 +47,8 @@ while true; do
     echo "Starting router"
     bash "${SCRIPTS[1]}" &
 
-    scp ${REMOTE_SCRIPT} "${BENCH_USER}"@"${BENCH_IP}":/home/spqr-perf-test/benchbase-spqr/
-    ssh "${BENCH_USER}"@"${BENCH_IP}" "bash /home/spqr-perf-test/benchbase-spqr/\$REMOTE_SCRIPT"
+    scp ${REMOTE_SCRIPT} "${BENCH_USER}"@"${BENCH_IP}":/home/spqr-perf-test/
+    ssh "${BENCH_USER}"@"${BENCH_IP}" "bash ${REMOTE_SCRIPT}"
 
     echo "$LATEST_COMMIT_HASH" > "$LAST_COMMIT_FILE"
 
