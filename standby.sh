@@ -56,5 +56,5 @@ while true; do
   else
     echo "No new commits. Waiting..."
   fi
-  sleep 300  # Check every 5 minutes
+  sleep 3600  # Check every 60 minutes
 done
