@@ -10,8 +10,8 @@ LAST_COMMIT_FILE="last_commit.txt"
 
 # Scripts to run
 SCRIPTS=("setup-configs.sh" "rebuild-router.sh")
-REMOTE_SCRIPT1="restart-bench.sh"
-REMOTE_SCRIPT2="load-data.sh"
+REMOTE_SCRIPT1="load-data.sh"
+REMOTE_SCRIPT2="restart-bench.sh"
 
 #Check whether all necessary env variables are set
 ENV_VARS=("HOSTPORT1" "HOSTPORT2" "HOSTPORT3" "HOSTPORT4" "HOSTPORT5" "HOSTPORT6" "POSTGRES_USER" "POSTGRES_PASS"
