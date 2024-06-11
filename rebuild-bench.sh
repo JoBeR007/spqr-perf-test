@@ -7,4 +7,4 @@ cd benchbase-spqr || exit 1
 cd target || exit 1
 tar xvzf benchbase-spqr.tgz
 cd ..
-java -jar target/benchbase-spqr/benchbase.jar -b tpcc -c ../configs/tpcc_config.xml --create=true --load=true --execute=true
+# java -jar target/benchbase-spqr/benchbase.jar -b tpcc -c ../configs/tpcc_config.xml --create=true --load=true --execute=true
