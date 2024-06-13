@@ -7,6 +7,8 @@ for i in {1..6}; do
   replace_string="${!search_string}"
   sed -i "s/$search_string/$replace_string/g" configs/router.yaml
 done
+#replace host with router ip
+sed -i "s/0.0.0.0/${ROUTER_IP}/g" configs/router.yaml
 #replace postgres credentials
 sed -i "s/strong/${POSTGRES_PASS}/g" configs/router.yaml
 sed -i "s/user1/${POSTGRES_USER}/g" configs/router.yaml
