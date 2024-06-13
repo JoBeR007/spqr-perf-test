@@ -9,7 +9,7 @@ REPO_DIR="spqr"
 LAST_COMMIT_FILE="last_commit.txt"
 
 # Scripts to run
-SCRIPTS=("setup-configs.sh" "rebuild-router.sh")
+SCRIPTS=("setup-configs.sh" "rebuild-router.sh" "copy-data.sh")
 REMOTE_SCRIPT1="load-data.sh"
 REMOTE_SCRIPT2="restart-bench.sh"
 
@@ -82,12 +82,19 @@ while true; do
     echo "Starting router"
     bash "${SCRIPTS[1]}" &
 
+    echo "Loading Data"
     if [ "$isDataLoaded" = false ] ; then
       scp ${REMOTE_SCRIPT1} "${BENCH_USER}"@"${BENCH_IP}":/home/spqr-perf-test/
       ssh "${BENCH_USER}"@"${BENCH_IP}" "bash ${REMOTE_SCRIPT1}"
+      if [ $? -ne 0 ]; then
+          echo "Script ${REMOTE_SCRIPT1} failed. Stopping the execution of further scripts."
+          exit 1
+      fi
+      bash "${SCRIPTS[2]}"
       isDataLoaded=true
     fi
 
+    echo "Starting benchmark"
     if [ "$isDataLoaded" = true ] ; then
       scp ${REMOTE_SCRIPT2} "${BENCH_USER}"@"${BENCH_IP}":/home/spqr-perf-test/
       ssh "${BENCH_USER}"@"${BENCH_IP}" "bash ${REMOTE_SCRIPT2}"
