@@ -2,10 +2,10 @@
 
 REPO_URL="https://github.com/pg-sharding/spqr"
 BRANCH="master"
+FULL_PATH=$(realpath $0)
+DIR_PATH=$(dirname "$FULL_PATH")
 
 REPO_DIR="spqr"
-
-# Local storage for the last processed commit hash
 LAST_COMMIT_FILE="last_commit.txt"
 
 # Scripts to run
@@ -23,6 +23,8 @@ for i in "${!SCRIPTS[@]}"; do
         exit 1
     fi
 done
+
+cd "$DIR_PATH" || exit 1
 
 # Clone the repository if it does not exist
 if [ ! -d "$REPO_DIR" ]; then
@@ -42,12 +44,12 @@ else
   LAST_PROCESSED_COMMIT_HASH=""
 fi
 
-isDataLoaded=false
+data_loaded=false
 #parse arguments
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     -dl|--data-loaded)
-      isDataLoaded="$2"
+      data_loaded="$2"
       shift 2 # shift past curr arg and value for curr arg
       ;;
     *)
@@ -59,8 +61,8 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Validate option value
-if [ "$isDataLoaded" != "true" ] && [ "$isDataLoaded" != "false" ]; then
-    echo "Invalid value for argument: $isDataLoaded. Use true or false." >&2
+if [ "$data_loaded" != "true" ] && [ "$data_loaded" != "false" ]; then
+    echo "Invalid value for argument: $data_loaded. Use true or false." >&2
     exit 1
 fi
 
@@ -74,34 +76,33 @@ if [ "$LATEST_COMMIT_HASH" != "$LAST_PROCESSED_COMMIT_HASH" ]; then
 
   bash "${SCRIPTS[0]}"
   if [ $? -ne 0 ]; then
-          echo "Script ${SCRIPTS[0]} failed. Stopping the execution of further scripts."
-          exit 1
+      echo "Script ${SCRIPTS[0]} failed. Stopping the execution of further scripts."
+      exit 1
   fi
   echo "Starting router"
   bash "${SCRIPTS[1]}" &
 
   echo "Loading Data"
-  if [ "$isDataLoaded" = false ] ; then
-    scp ${REMOTE_SCRIPT1} "${BENCH_USER}"@"${BENCH_IP}":/home/spqr-perf-test/
-    ssh "${BENCH_USER}"@"${BENCH_IP}" "bash ${REMOTE_SCRIPT1}"
+  if [ "$data_loaded" = false ] ; then
+    scp ${REMOTE_SCRIPT1} "${BENCH_USER}"@"${BENCH_IP}":/home/"${BENCH_USER}"
+    ssh "${BENCH_USER}"@"${BENCH_IP}" "bash /home/${BENCH_USER}/$REMOTE_SCRIPT1"
     if [ $? -ne 0 ]; then
         echo "Script ${REMOTE_SCRIPT1} failed. Stopping the execution of further scripts."
         exit 1
     fi
-    isDataLoaded=true
+    data_loaded=true
   fi
 
-  echo "Copying tables"
-  bash "${SCRIPTS[2]}"
+  if [ "$data_loaded" = true ] ; then
+    echo "Copying tables"
+    bash "${SCRIPTS[2]}"
 
-  echo "Starting benchmark"
-  if [ "$isDataLoaded" = true ] ; then
-    scp ${REMOTE_SCRIPT2} "${BENCH_USER}"@"${BENCH_IP}":/home/spqr-perf-test/
-    ssh "${BENCH_USER}"@"${BENCH_IP}" "bash ${REMOTE_SCRIPT2}"
+    echo "Starting benchmark"
+    scp $REMOTE_SCRIPT2 "${BENCH_USER}"@"${BENCH_IP}":/home/"${BENCH_USER}"
+    ssh "${BENCH_USER}"@"${BENCH_IP}" "bash /home/${BENCH_USER}/$REMOTE_SCRIPT2"
   fi
 
   echo "$LATEST_COMMIT_HASH" > "$LAST_COMMIT_FILE"
-
   git --git-dir="$REPO_DIR/.git" --work-tree="$REPO_DIR" pull
 else
   echo "No new commits. Waiting..."
