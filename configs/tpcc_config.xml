@@ -21,11 +21,11 @@
 
     <!-- Upper limits are the highest warehouse id (up to and including) that is stored at corresponding shard-->
     <upperLimits>
-        <upperLimit>10</upperLimit>
-        <upperLimit>20</upperLimit>
+        <upperLimit>50</upperLimit>
+        <upperLimit>100</upperLimit>
     </upperLimits>
     <!-- The workload -->
-    <terminals>20</terminals>
+    <terminals>32</terminals>
     <works>
         <work>
             <warmup>30</warmup>
