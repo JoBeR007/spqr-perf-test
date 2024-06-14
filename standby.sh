@@ -83,6 +83,7 @@ while true; do
     fi
     echo "Starting router"
     bash "${SCRIPTS[1]}" &
+    sleep 5
 
     echo "Loading Data"
     if [ "$data_loaded" = false ] ; then
