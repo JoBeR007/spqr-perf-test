@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #SETTING UP ROUTER CONFIG
-ROUTER_CFG_PATH="/configs/router.yaml"
-BENCH_CFG_PATH="/configs/tpcc_config.xml"
+ROUTER_CFG_PATH="configs/router.yaml"
+BENCH_CFG_PATH="configs/tpcc_config.xml"
 #replace every entrance of HOSTPORT1..6 in router config with env variable
 for i in {1..6}; do
   search_string="HOSTPORT${i}"
