@@ -20,6 +20,8 @@ REMOTE_SCRIPT2="restart-bench.sh"
 ENV_VARS=("HOSTPORT1" "HOSTPORT2" "HOSTPORT3" "HOSTPORT4" "HOSTPORT5" "HOSTPORT6" "POSTGRES_USER" "POSTGRES_PASS"
 "POSTGRES_DB" "ROUTER_IP" "BENCH_IP" "BENCH_USER")
 
+cd "$DIR_PATH" || exit 1
+
 # Trap to handle cleanup on exit or interrupt
 trap "exit_cleanup" EXIT INT TERM
 
@@ -42,20 +44,21 @@ acquire_lock() {
 }
 
 # Check whether all necessary environment variables are set
-for var in "${ENV_VARS[@]}"; do
-    if [ -z "${!var}" ]; then
-        log "Error: $var is not set."
-        exit 1
+check_env_vars() {
+    for var in "${ENV_VARS[@]}"; do
+        if [ -z "${!var}" ]; then
+            log "Error: $var is not set."
+            exit 1
+        fi
+    done
+}
+
+clone_repo() {
+    if [ ! -d "$REPO_DIR" ]; then
+      log "Cloning repository $REPO_URL into $REPO_DIR"
+      git clone "$REPO_URL" "$REPO_DIR"
     fi
-done
-
-cd "$DIR_PATH" || exit 1
-
-# Clone the repository if it does not exist
-if [ ! -d "$REPO_DIR" ]; then
-  log "Cloning repository $REPO_URL into $REPO_DIR"
-  git clone "$REPO_URL" "$REPO_DIR"
-fi
+}
 
 # Function to fetch the latest commit hash
 fetch_latest_commit_hash() {
@@ -119,10 +122,15 @@ main() {
     acquire_lock
     initialize_or_read_metadata
     parse_arguments "$@"
+    check_env_vars
+    clone_repo
+
+    # Main script execution
+    log "Starting main script execution..."
 
     # Get the latest commit hash with retry logic
     LATEST_COMMIT_HASH=""
-    for i in {1..3}; do
+    for _ in {1..3}; do
         if LATEST_COMMIT_HASH=$(fetch_latest_commit_hash); then
             break
         else
@@ -133,8 +141,7 @@ main() {
     if [ -z "$LATEST_COMMIT_HASH" ]; then
         log "Failed to fetch latest commit hash after multiple attempts. Exiting."
         rm -f "$LOCK_FILE"
-
-exit 1
+        exit 1
     fi
 
     # Check if there is a new commit
