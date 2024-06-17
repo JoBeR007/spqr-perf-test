@@ -6,7 +6,7 @@ FULL_PATH=$(realpath $0)
 DIR_PATH=$(dirname "$FULL_PATH")
 
 REPO_DIR="spqr"
-LAST_COMMIT_FILE="last_commit.txt"
+METADATA_FILE="metadata_file.txt"
 
 # Scripts to run
 SCRIPTS=("setup-configs.sh" "rebuild-router.sh" "copy-data.sh")
@@ -37,19 +37,21 @@ fetch_latest_commit_hash() {
   git --git-dir="$REPO_DIR/.git" --work-tree="$REPO_DIR" rev-parse origin/"$BRANCH"
 }
 
-# Get the last processed commit hash (if it exists)
-if [ -f "$LAST_COMMIT_FILE" ]; then
-  LAST_PROCESSED_COMMIT_HASH=$(cat "$LAST_COMMIT_FILE")
+# Initialize Metadata
+if [ -f "$METADATA_FILE" ]; then
+  source "$METADATA_FILE"
 else
-  LAST_PROCESSED_COMMIT_HASH=""
+  echo "LAST_PROCESSED_COMMIT_HASH=''" > "$METADATA_FILE"
+  echo "DATA_LOADED='false'" >> "$METADATA_FILE"
+  LAST_PROCESSED_COMMIT_HASH=''
+  DATA_LOADED='false'
 fi
 
-data_loaded=false
 #parse arguments
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     -dl|--data-loaded)
-      data_loaded="$2"
+      DATA_LOADED="$2"
       shift 2 # shift past curr arg and value for curr arg
       ;;
     *)
@@ -61,8 +63,8 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Validate option value
-if [ "$data_loaded" != "true" ] && [ "$data_loaded" != "false" ]; then
-    echo "Invalid value for argument: $data_loaded. Use true or false." >&2
+if [ "$DATA_LOADED" != "true" ] && [ "$DATA_LOADED" != "false" ]; then
+    echo "Invalid value for argument: $DATA_LOADED. Use true or false." >&2
     exit 1
 fi
 
@@ -81,19 +83,20 @@ if [ "$LATEST_COMMIT_HASH" != "$LAST_PROCESSED_COMMIT_HASH" ]; then
   fi
   echo "Starting router"
   bash "${SCRIPTS[1]}" &
+  sleep 5
 
   echo "Loading Data"
-  if [ "$data_loaded" = false ] ; then
+  if [ "$DATA_LOADED" = "false" ] ; then
     scp ${REMOTE_SCRIPT1} "${BENCH_USER}"@"${BENCH_IP}":/home/"${BENCH_USER}"
     ssh "${BENCH_USER}"@"${BENCH_IP}" "bash /home/${BENCH_USER}/$REMOTE_SCRIPT1"
     if [ $? -ne 0 ]; then
         echo "Script ${REMOTE_SCRIPT1} failed. Stopping the execution of further scripts."
         exit 1
     fi
-    data_loaded=true
+    DATA_LOADED="true"
   fi
 
-  if [ "$data_loaded" = true ] ; then
+  if [ "$DATA_LOADED" = "true" ] ; then
     echo "Copying tables"
     bash "${SCRIPTS[2]}"
 
@@ -102,7 +105,10 @@ if [ "$LATEST_COMMIT_HASH" != "$LAST_PROCESSED_COMMIT_HASH" ]; then
     ssh "${BENCH_USER}"@"${BENCH_IP}" "bash /home/${BENCH_USER}/$REMOTE_SCRIPT2"
   fi
 
-  echo "$LATEST_COMMIT_HASH" > "$LAST_COMMIT_FILE"
+  # Update metadata file
+  echo "LAST_PROCESSED_COMMIT_HASH='$LATEST_COMMIT_HASH'" > "$METADATA_FILE"
+  echo "DATA_LOADED='$DATA_LOADED'" >> "$METADATA_FILE"
+
   git --git-dir="$REPO_DIR/.git" --work-tree="$REPO_DIR" pull
 else
   echo "No new commits. Waiting..."
