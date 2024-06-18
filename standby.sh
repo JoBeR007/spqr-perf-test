@@ -49,7 +49,6 @@ fi
 
 # Function to fetch the latest commit hash
 fetch_latest_commit_hash() {
-    log "Fetching latest commit hash from branch $BRANCH"
     git --git-dir="$REPO_DIR/.git" --work-tree="$REPO_DIR" fetch origin "$BRANCH"
     git --git-dir="$REPO_DIR/.git" --work-tree="$REPO_DIR" rev-parse origin/"$BRANCH"
 }

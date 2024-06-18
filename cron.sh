@@ -62,7 +62,6 @@ clone_repo() {
 
 # Function to fetch the latest commit hash
 fetch_latest_commit_hash() {
-    log "Fetching latest commit hash from branch $BRANCH"
     git --git-dir="$REPO_DIR/.git" --work-tree="$REPO_DIR" fetch origin "$BRANCH"
     git --git-dir="$REPO_DIR/.git" --work-tree="$REPO_DIR" rev-parse origin/"$BRANCH"
 }
@@ -85,6 +84,7 @@ EOF
     # Ensure metadata values are correctly read
     [ -z "$LAST_PROCESSED_COMMIT_HASH" ] && LAST_PROCESSED_COMMIT_HASH=''
     [ -z "$DATA_LOADED" ] && DATA_LOADED='false'
+    log "Metadata initialized: LAST_PROCESSED_COMMIT_HASH=$LAST_PROCESSED_COMMIT_HASH, DATA_LOADED=$DATA_LOADED"
 }
 
 # Update metadata file
