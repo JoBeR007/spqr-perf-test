@@ -35,13 +35,19 @@ AS TABLE new_order_orig;
 CREATE TABLE order_line
 AS TABLE order_line_orig;
 
+CREATE INDEX idx_district_name ON district (D_W_ID, D_ID);
+
 CREATE INDEX idx_customer_name ON customer (C_W_ID, C_D_ID, C_LAST, C_FIRST);
 
-CREATE INDEX idx_oorder_name ON oorder (O_W_ID,O_D_ID,O_C_ID,O_ID);
+CREATE INDEX idx_oorder_name ON oorder (O_W_ID,O_D_ID,O_ID);
 
-CREATE INDEX fkey_stock_2_name ON stock (S_I_ID);
+CREATE INDEX fkey_stock_2_name ON stock (S_W_ID, S_I_ID);
 
-CREATE INDEX fkey_order_line_2_name ON order_line (OL_SUPPLY_W_ID,OL_I_ID);
+CREATE INDEX fkey_new_order_1_name ON new_order (NO_W_ID, NO_D_ID);
+
+CREATE INDEX fkey_new_order_2_name ON new_order (NO_W_ID, NO_D_ID, NO_O_ID);
+
+CREATE INDEX fkey_order_line_2_name ON order_line (OL_W_ID, OL_D_ID, OL_O_ID);
 
 CREATE INDEX fkey_history_1_name ON history (H_C_W_ID,H_C_D_ID,H_C_ID);
 
