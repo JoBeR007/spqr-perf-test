@@ -35,6 +35,10 @@ AS TABLE new_order_orig;
 CREATE TABLE order_line
 AS TABLE order_line_orig;
 
+CREATE INDEX idx_item on item (I_ID);
+
+CREATE INDEX idx_warehouse on warehouse (W_ID);
+
 CREATE INDEX idx_district_name ON district (D_W_ID, D_ID);
 
 CREATE INDEX idx_customer_name ON customer (C_W_ID, C_D_ID, C_LAST, C_FIRST);
