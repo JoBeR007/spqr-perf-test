@@ -12,9 +12,10 @@ METADATA_FILE="metadata_file.txt"
 LOCK_FILE="/tmp/spqr_script.lock"
 
 # Scripts to run
-SCRIPTS=("setup-configs.sh" "rebuild-router.sh" "copy-data.sh")
+SCRIPTS=("setup-configs.sh" "rebuild-router.sh" "copy-data.sh" "write-results.sh")
 REMOTE_SCRIPT1="load-data.sh"
 REMOTE_SCRIPT2="restart-bench.sh"
+REMOTE_SCRIPT3="export-results.sh"
 
 # Environment Variables
 ENV_VARS=("HOSTPORT1" "HOSTPORT2" "HOSTPORT3" "HOSTPORT4" "HOSTPORT5" "HOSTPORT6" "POSTGRES_USER" "POSTGRES_PASS"
@@ -176,6 +177,10 @@ main() {
             scp $REMOTE_SCRIPT2 "${BENCH_USER}"@"${BENCH_IP}":/home/"${BENCH_USER}"
             ssh "${BENCH_USER}"@"${BENCH_IP}" "bash /home/${BENCH_USER}/$REMOTE_SCRIPT2"
         fi
+
+        log "Exporting results to database at Shard 1"
+        scp $REMOTE_SCRIPT3 "${BENCH_USER}"@"${BENCH_IP}":/home/"${BENCH_USER}"
+        ssh "${BENCH_USER}"@"${BENCH_IP}" "bash /home/${BENCH_USER}/$REMOTE_SCRIPT3" | bash "${SCRIPTS[3]}"
 
         # Update metadata file
         update_metadata
