@@ -13,6 +13,7 @@ LOCK_FILE="/tmp/spqr_script.lock"
 
 # Scripts to run
 SCRIPTS=("setup-configs.sh" "rebuild-router.sh" "copy-data.sh" "write-results.sh")
+REMOTE_SCRIPT0="rebuild-bench.sh"
 REMOTE_SCRIPT1="load-data.sh"
 REMOTE_SCRIPT2="restart-bench.sh"
 REMOTE_SCRIPT3="export-results.sh"
@@ -160,7 +161,15 @@ main() {
         bash "${SCRIPTS[0]}"
         log "Starting router"
         bash "${SCRIPTS[1]}" &
-        sleep 5
+        #Give enough time for router to build before execution of benchmark
+        sleep 10
+
+        #Clone and build benchmark if it is not present
+        if ! ssh "${BENCH_USER}@${BENCH_IP}" "[ -d '/home/${BENCH_USER}/benchbase-spqr' ]"; then
+            log "Benchbase was not found, cloning ..."
+            scp $REMOTE_SCRIPT0 "${BENCH_USER}"@"${BENCH_IP}":/home/"${BENCH_USER}"
+            ssh "${BENCH_USER}"@"${BENCH_IP}" "bash /home/${BENCH_USER}/$REMOTE_SCRIPT0"
+        fi
 
         log "Loading Data"
         if [ "$DATA_LOADED" = "false" ]; then
