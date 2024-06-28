@@ -37,3 +37,7 @@ bash standby.sh
 // Configure variables and job in crontab 
 crontab -e
 ```
+## Results Output
+
+The results are written into database at spqr shard 1 into table benchmark_data.
+Table contains: timestamp, calculated tpmC, median latency, average latency, 75% 90% 95% 99% latencies and goodput in req/sec 
